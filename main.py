@@ -112,6 +112,25 @@ def suspender_pc():
 def bloquear_pc():
     ctypes.windll.user32.LockWorkStation()
 
+
+# FUNCIONES 
+
+def manejar_youtube(texto):
+    print("procesando youtube...")
+
+    # limpiar comando
+    busqueda = texto.replace("aurora", "")
+    busqueda = busqueda.replace("buscar en youtube", "")
+    busqueda = busqueda.replace("youtube", "")
+    busqueda = busqueda.strip()
+
+    if busqueda:
+        print("reproduciendo:", busqueda)
+        pywhatkit.playonyt(busqueda)
+    else:
+        print("no entendí qué buscar en youtube")
+
+
 # BUCLE
 
 while True:
