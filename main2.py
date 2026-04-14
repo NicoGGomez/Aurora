@@ -19,12 +19,11 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 r = sr.Recognizer()
 r.pause_threshold = 0.8
-mic = sr.Microphone()
 eventos = queue.Queue()
 activo = False
 
 def escuchar():
-    with mic as source:
+    with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=0.2)
         audio = r.listen(source)
 
@@ -45,7 +44,6 @@ def listener():
             # 🔥 WAKE WORD
             if "aurora" in texto:
                 activo = True
-                winsound.MessageBeep(winsound.MB_OK)
                 print("🟢 Aurora activado")
 
             # si está activo, mandar a cola
@@ -62,8 +60,50 @@ def processor():
         except Exception as e:
             print("error procesando comando:", e)
 
+# NOTAS
+
+def procesar_comando_nota(texto):
+    texto = texto.lower()
+
+    if "tomar nota" in texto:
+        tomar_nota()
+        print("modo dictado activado")
+
+def tomar_nota():
+    nombre_archivo = f"nota_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+
+    # crear archivo primero
+    with open(nombre_archivo, "w", encoding="utf-8") as f:
+        f.write(">>> Decí 'aurora finalizar nota' para terminar <<<\n\n")
+
+    # abrir bloc
+    os.system(f"start notepad {nombre_archivo}")
+
+    time.sleep(1.5)
+
+    pyautogui.hotkey('ctrl', 'end')
+    pyautogui.press('enter')
+    while True:
+        nota = escuchar()
+
+        if not nota:
+            continue
+
+        nota = nota.lower()
+
+        if "aurora finalizar nota" in nota:
+            print("nota finalizada")
+
+            pyautogui.press("enter")
+            pyautogui.write(f"\n--- FIN DE LA NOTA ({datetime.now().strftime('%d/%m/%Y')}) ---\n")
+            break
+
+        # escribir nota
+        pyautogui.write(nota + "\n", interval=0.02)
+
 
 # VOLUMEN
+
 def procesar_comando_volumen(texto):
     texto = texto.lower()
 
@@ -104,6 +144,44 @@ def set_volumen(porcentaje):
 
     volume = cast(volume, POINTER(IAudioEndpointVolume))
     volume.SetMasterVolumeLevelScalar(porcentaje / 100, None)
+
+# ABRIR
+
+def procesar_comando_abrir(texto):
+        app = texto.replace("aurora abrir", "").strip()
+
+        if app:
+            print(f"abriendo {app}")
+
+            if os.system(f"start {app}") != 0:
+                if not busqueda_profunda(app):
+                    print("no se pudo abrir")
+
+def busqueda_profunda(aplicacion):
+    posibles_rutas = [
+        # Usuario
+        os.path.expandvars(rf"%APPDATA%\{aplicacion}\{aplicacion}.exe"),
+        os.path.expandvars(rf"%LOCALAPPDATA%\{aplicacion}\{aplicacion}.exe"),
+
+        # Microsoft Store
+        os.path.expandvars(rf"%LOCALAPPDATA%\Microsoft\WindowsApps\{aplicacion}.exe"),
+
+        # Program Files
+        rf"C:\Program Files\{aplicacion}\{aplicacion}.exe",
+        rf"C:\Program Files (x86)\{aplicacion}\{aplicacion}.exe",
+
+        # Variantes comunes
+        rf"C:\Program Files\{aplicacion.capitalize()}\{aplicacion}.exe",
+        rf"C:\Program Files (x86)\{aplicacion.capitalize()}\{aplicacion}.exe",
+    ]
+
+    for ruta in posibles_rutas:
+        if os.path.exists(ruta):
+            os.startfile(ruta)
+            return True
+
+    print(f"No se encontró {aplicacion}")
+    return False
 
 # YOUTUBE
 
@@ -161,7 +239,9 @@ def abrir_youtube():
 
 COMANDOS = {
     "youtube": procesar_comando_youtube,
-    "volumen": procesar_comando_volumen
+    "volumen": procesar_comando_volumen,
+    "nota": procesar_comando_nota,
+    "abrir": procesar_comando_abrir
 }
 
 # ROUTER
