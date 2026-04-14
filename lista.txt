@@ -1,0 +1,158 @@
+🔧 1. Problemas actuales (importante)
+❌ 1. obtener_porcentaje es frágil
+re.search(r"(\d+)\s*%?", texto)
+
+Esto también puede agarrar números que no son volumen.
+
+✔ Mejor:
+
+re.search(r"(?:volumen\s*)?(\d{1,3})\s*%?", texto)
+❌ 2. Muchos if seguidos (no es escalable)
+
+Tenés esto:
+
+if "aurora volumen máximo" in texto ...
+if "aurora mutear volumen" ...
+if "aurora volumen" ...
+
+👉 Problema: se vuelve inmanejable.
+
+✔ Mejor: usar “intents”
+
+❌ 3. escuchar() crea micrófono cada vez
+
+Esto es caro.
+
+✔ Mejor:
+Abrir el micrófono UNA vez.
+
+❌ 4. except: vacío
+except:
+    return ""
+
+❌ Oculta errores reales.
+
+✔ Mejor:
+
+except sr.UnknownValueError:
+    return ""
+except sr.RequestError:
+    return ""
+❌ 5. Bucle de notas bloquea todo
+
+Cuando entras en:
+
+while True:
+
+tu asistente queda “muerto” para otros comandos.
+
+🚀 2. Mejora estructural (lo más importante)
+👉 Convertí todo a “router de comandos”
+
+Ejemplo limpio:
+
+def procesar_comando(texto):
+    if "volumen" in texto:
+        manejar_volumen(texto)
+
+    elif "youtube" in texto:
+        manejar_youtube(texto)
+
+    elif "spotify" in texto:
+        manejar_spotify(texto)
+
+    elif "nota" in texto:
+        manejar_notas()
+🎯 3. Mejor manejo de volumen (mucho mejor)
+def manejar_volumen(texto):
+    if "máximo" in texto or "maximo" in texto:
+        set_volumen(100)
+        return
+
+    if "mutear" in texto:
+        set_volumen(0)
+        return
+
+    porcentaje = obtener_porcentaje(texto)
+    if porcentaje is not None:
+        print(f"Acomodando volumen a {porcentaje}%")
+        set_volumen(porcentaje)
+🧠 4. Mejor regex de porcentaje
+def obtener_porcentaje(texto):
+    match = re.search(r"(\d{1,3})\s*%?", texto)
+    if match:
+        val = int(match.group(1))
+        return max(0, min(val, 100))  # clamp
+    return None
+🎤 5. Optimizar reconocimiento de voz (MUY importante)
+
+En vez de crear micrófono cada vez:
+
+mic = sr.Microphone()
+
+def escuchar():
+    with mic as source:
+        r.adjust_for_ambient_noise(source, duration=0.2)
+        audio = r.listen(source)
+
+    try:
+        return r.recognize_google(audio, language="es-AR").lower()
+    except sr.UnknownValueError:
+        return ""
+⚡ 6. Evitar spam de CPU (mejora importante)
+
+Tu loop:
+
+time.sleep(0.5)
+
+✔ Mejor:
+
+time.sleep(0.2)
+
+o incluso event-driven si querés nivel pro.
+
+🧱 7. Mejor sistema de comandos (PRO)
+
+Podés hacerlo así:
+
+COMANDOS = {
+    "youtube": manejar_youtube,
+    "spotify": manejar_spotify,
+    "nota": manejar_notas,
+}
+
+y luego:
+
+for key, func in COMANDOS.items():
+    if key in texto:
+        func(texto)
+        break
+🧼 8. Limpieza de código
+❌ Esto:
+os.system("start https://www.youtube.com")
+✔ Mejor:
+import webbrowser
+webbrowser.open("https://www.youtube.com")
+🧠 9. Mejora clave (te va a cambiar todo)
+
+👉 Separá en archivos:
+
+main.py
+commands/
+   volume.py
+   youtube.py
+   spotify.py
+   notes.py
+utils/
+   speech.py
+   system.py
+🚀 10. Upgrade más pro (si querés nivel asistente real)
+
+Podés agregar:
+
+cooldown anti repetición de comandos
+historial de comandos
+logs
+wake word real (“Aurora” activación)
+threading para notas
+cola de comandos
