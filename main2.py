@@ -8,12 +8,13 @@ from datetime import datetime
 import pywhatkit
 import re
 import webbrowser
+import winsound
 
 import threading
 import queue
 
 from ctypes import cast, POINTER
-from comtypes import CLSCTX_ALL
+from comtypes import CLSCTX_ALL, CoInitialize
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 r = sr.Recognizer()
@@ -44,6 +45,7 @@ def listener():
             # 🔥 WAKE WORD
             if "aurora" in texto:
                 activo = True
+                winsound.MessageBeep(winsound.MB_OK)
                 print("🟢 Aurora activado")
 
             # si está activo, mandar a cola
@@ -59,6 +61,49 @@ def processor():
             procesar_comando(texto)
         except Exception as e:
             print("error procesando comando:", e)
+
+
+# VOLUMEN
+def procesar_comando_volumen(texto):
+    texto = texto.lower()
+
+    if "mutear volumen" in texto:
+        print("Volumen en 0%")
+        set_volumen(0)
+
+    elif "volumen máximo" in texto:
+        print("Volumen en 100%")
+        set_volumen(100)
+
+    elif "volumen" in texto or "volumen al" in texto:
+        porcentaje = obtener_porcentaje(texto)
+
+        if porcentaje is not None:
+            print(f"Acomodando volumen a {porcentaje}%")
+            set_volumen(porcentaje)
+        else:
+            print("No se detectó porcentaje")
+
+def obtener_porcentaje(texto):
+    match = re.search(r"(?:volumen\s*)?(\d{1,3})\s*%?", texto)
+    if match:
+        print(match)
+        return int(match.group(1))
+    return None
+
+def set_volumen(porcentaje):
+    CoInitialize()
+    enumerator = AudioUtilities.GetDeviceEnumerator()
+    endpoint = enumerator.GetDefaultAudioEndpoint(0, 1)
+
+    volume = endpoint.Activate(
+        IAudioEndpointVolume._iid_,
+        CLSCTX_ALL,
+        None
+    )
+
+    volume = cast(volume, POINTER(IAudioEndpointVolume))
+    volume.SetMasterVolumeLevelScalar(porcentaje / 100, None)
 
 # YOUTUBE
 
@@ -115,7 +160,8 @@ def abrir_youtube():
 # COMANDOS
 
 COMANDOS = {
-    "youtube": procesar_comando_youtube
+    "youtube": procesar_comando_youtube,
+    "volumen": procesar_comando_volumen
 }
 
 # ROUTER
