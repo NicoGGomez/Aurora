@@ -45,7 +45,6 @@ def listener():
             if "aurora" in texto:
                 activo = True
                 print("🟢 Aurora activado")
-                continue
 
             # si está activo, mandar a cola
             if activo:
@@ -123,6 +122,7 @@ COMANDOS = {
 
 def procesar_comando(texto):
     texto = texto.lower()
+    print(texto)
 
     for clave, func in COMANDOS.items():
         if clave in texto:
