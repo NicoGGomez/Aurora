@@ -12,7 +12,8 @@ from Clases.ComandosCustom import ComandosCustom
 
 from Datos.Respuestas import (
     SALUDOS,
-    RESPUESTAS_ACTIVACION
+    RESPUESTAS_ACTIVACION,
+    RESPUESTAS_NO_ENTENDI
 )
 
 
@@ -60,6 +61,10 @@ print("🟢 Micrófono listo")
 # =========================
 
 COMANDOS = {
+
+    "buscar imagen" : Comandos.procesar_comando_buscar_imagen,
+
+    "buscar" : Comandos.procesar_comando_buscar,
 
     "desconectate": Comandos.desconectar,
 
@@ -125,6 +130,11 @@ def procesar_comando(texto):
             return
 
     print("❌ No entendí el comando")
+    Helper.hablar(
+        Helper.respuesta_aleatoria(
+                RESPUESTAS_NO_ENTENDI
+        )
+    )
 
 
 # =========================

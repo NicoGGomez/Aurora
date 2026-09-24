@@ -1,6 +1,7 @@
 import os
 import pyautogui
 import ctypes
+import webbrowser
 
 from Clases.ComandoYT import ComandoYT
 from Clases.ComandoSpotify import ComandoSpotify
@@ -10,6 +11,64 @@ from Datos.Respuestas import DESPEDIDAS
 
 
 class Comandos:
+
+    def procesar_comando_buscar(texto):
+        texto = texto.lower().strip()
+
+        palabras_busqueda = [
+            "buscar",
+            "buscá",
+            "googlear",
+            "googleá",
+            "buscame",
+            "buscá en google",
+            "buscar en google"
+        ]
+
+        for palabra in palabras_busqueda:
+            if palabra in texto:
+                busqueda = texto.split(palabra, 1)[1].strip()
+
+                if busqueda:
+                    url = f"https://www.google.com/search?q={busqueda.replace(' ', '+')}"
+                    webbrowser.open(url)
+
+                    print(f"🔎 Buscando en Google: {busqueda}")
+                    return True
+
+        return False
+
+    @staticmethod
+    def procesar_comando_buscar_imagen(texto):
+        texto = texto.lower().strip()
+
+        palabras_busqueda = [
+            "buscar imagen",
+            "buscar imágenes",
+            "buscá imagen",
+            "buscá imágenes",
+            "buscar foto",
+            "buscar fotos",
+            "buscá foto",
+            "buscá fotos"
+        ]
+
+        for palabra in palabras_busqueda:
+            if palabra in texto:
+                busqueda = texto.split(palabra, 1)[1].strip()
+
+                if busqueda:
+                    url = (
+                        "https://www.google.com/search"
+                        f"?tbm=isch&q={busqueda.replace(' ', '+')}"
+                    )
+
+                    webbrowser.open(url)
+
+                    print(f"🖼️ Buscando imagen: {busqueda}")
+                    return True
+
+        return False
 
     @staticmethod
     def procesar_comando_pc(texto):

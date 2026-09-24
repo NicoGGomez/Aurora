@@ -4,8 +4,11 @@ import webbrowser
 import random
 import winsound
 import unicodedata
+import subprocess
+import webbrowser
 
 from Clases.Busqueda import Busqueda
+from Datos.Aplicaciones import APLICACIONES
 
 class Helper:
 
@@ -57,23 +60,57 @@ class Helper:
     @staticmethod
     def abrir_aplicacion(app):
 
-        app = app.lower()
-
+        app = app.lower().strip()
         app = Helper.limpiar_busqueda(app)
 
         if "configuracion" in app:
 
             os.system("start ms-settings:")
+            return
 
-        else:
+        # Si tenemos la aplicación en nuestro diccionario
+        if app in APLICACIONES:
 
-            print(f"Abriendo {app}")
+            for ejecutable in APLICACIONES[app]:
 
-            if not Busqueda.busqueda_profunda(app):
+                try:
 
-                webbrowser.open(
-                    f"https://www.google.com/search?q={app}"
-                )
+                    resultado = subprocess.run(
+                        ["where", ejecutable],
+                        capture_output=True,
+                        text=True
+                    )
+
+                    if resultado.returncode == 0:
+
+                        ruta = resultado.stdout.splitlines()[0]
+
+                        print(f"✅ Encontrado: {ruta}")
+
+                        subprocess.Popen(
+                            ruta,
+                            shell=True
+                        )
+
+                        return
+
+                except Exception as e:
+
+                    print(f"⚠️ Error: {e}")
+
+        # Buscar aplicación de forma general
+        print(f"🔎 Buscando {app}")
+
+        if Busqueda.busqueda_profunda(app):
+            return
+
+        # Si no encontró nada → Google
+        print(f"🌐 No encontré {app}")
+        Helper.hablar(f"No encontré {app}, así que abrí la aplicación web")
+
+        webbrowser.open(
+            f"https://www.google.com/search?q={app}"
+        )
 
     @staticmethod
     def respuesta_aleatoria(respuestas):

@@ -1,6 +1,57 @@
 import os
+import shutil
+import subprocess
 
 class Busqueda:
+
+    @staticmethod
+    def abrir_vscode():
+
+        # 1. Si "code" está agregado al PATH
+        code = shutil.which("code")
+
+        if code:
+            subprocess.Popen(
+                [code],
+                shell=False
+            )
+            return True
+
+        # 2. Instalación normal por usuario
+        ruta_usuario = os.path.expandvars(
+            r"%LOCALAPPDATA%\Programs\Microsoft VS Code\Code.exe"
+        )
+
+        if os.path.exists(ruta_usuario):
+            subprocess.Popen(
+                [ruta_usuario]
+            )
+            return True
+
+        # 3. Instalación para todos los usuarios
+        ruta_programas = os.path.expandvars(
+            r"%ProgramFiles%\Microsoft VS Code\Code.exe"
+        )
+
+        if os.path.exists(ruta_programas):
+            subprocess.Popen(
+                [ruta_programas]
+            )
+            return True
+
+        # 4. Instalación 32 bits
+        ruta_programas_x86 = os.path.expandvars(
+            r"%ProgramFiles(x86)%\Microsoft VS Code\Code.exe"
+        )
+
+        if os.path.exists(ruta_programas_x86):
+            subprocess.Popen(
+                [ruta_programas_x86]
+            )
+            return True
+
+        print("❌ No encontré Visual Studio Code")
+        return False
 
     @staticmethod
     def busqueda_profunda(aplicacion):

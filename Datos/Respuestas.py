@@ -3,7 +3,22 @@ RESPUESTAS_ACTIVACION = [
     "Decime",
     "¿Qué necesitás?",
     "Te escucho",
-    "¿En qué te ayudo?"
+    "¿En qué te ayudo?",
+    "¿Qué pasa?",
+    "¿Qué querés?",
+    "¿En qué andamos?",
+    "Decime qué necesitás",
+    "Estoy escuchando",
+    "¿Qué puedo hacer por vos?",
+    "¿Qué necesitás de mí?",
+    "¿Sí, qué pasó?",
+    "¿Qué puedo hacer?",
+    "Acá estoy",
+    "Dale, decime",
+    "Te escucho, decime",
+    "¿Qué hacemos?",
+    "¿Qué querés que haga?",
+    "¿En qué puedo ayudarte?"
 ]
 
 SALUDOS = [
@@ -11,12 +26,66 @@ SALUDOS = [
     "Buenas",
     "¡Hola! ¿Cómo estás?",
     "¡Buenas! ¿Qué tal?",
-    "Hola, ¿en qué te puedo ayudar?"
+    "Hola, ¿en qué te puedo ayudar?",
+    "Hola, ¿cómo va?",
+    "Buenas, ¿todo bien?",
+    "¡Hola! ¿Qué tal?",
+    "Buenas, ¿en qué andamos?",
+    "Hola, decime",
+    "¡Buenas! ¿Cómo estás?",
+    "Hola, ¿qué necesitás?",
+    "Buenas, ¿qué hacemos?",
+    "¡Hola! Acá estoy",
+    "Hola, ¿cómo va todo?",
+    "Buenas, ¿todo tranquilo?",
+    "¡Hola! ¿Qué onda?",
+    "Buenas, decime",
+    "Hola, ¿qué tal?",
+    "¡Buenas! ¿En qué te ayudo?"
 ]
 
 DESPEDIDAS = [
     "Hasta luego",
     "Nos vemos",
     "¡Chau!",
-    "Hasta la próxima"
+    "Hasta la próxima",
+    "Nos vemos después",
+    "Hasta luego, Nico",
+    "Bueno, nos vemos",
+    "Dale, hasta luego",
+    "Nos vemos, chau",
+    "Hasta la próxima",
+    "Que estés bien",
+    "Nos hablamos",
+    "Hablamos después",
+    "Bueno, chau",
+    "Hasta después",
+    "Nos vemos luego",
+    "Listo, nos vemos",
+    "Dale, nos vemos",
+    "Chau, que estés bien",
+    "Hasta la próxima, nos vemos"
+]
+
+RESPUESTAS_NO_ENTENDI = [
+    "No entendí.",
+    "¿Qué dijiste?",
+    "No te entendí.",
+    "¿Podés repetirlo?",
+    "No llegué a entenderte.",
+    "Perdón, no entendí.",
+    "¿Me lo repetís?",
+    "No escuché bien.",
+    "No entendí lo que dijiste.",
+    "¿Podés decirlo de nuevo?",
+    "Creo que no te entendí.",
+    "No llegué a escucharte bien.",
+    "¿Qué quisiste decir?",
+    "Repetímelo, por favor.",
+    "Mmm, no entendí eso.",
+    "Se me escapó eso.",
+    "No estoy segura de haber entendido.",
+    "¿Me lo podés repetir?",
+    "No entendí nada de eso.",
+    "Decímelo de nuevo."
 ]

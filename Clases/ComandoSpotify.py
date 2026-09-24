@@ -92,3 +92,16 @@ class ComandoSpotify:
         )
 
         print("▶️ Reproduciendo")
+
+    @staticmethod
+    def reproducir_playlist_estudio():
+
+        playlist_uri = "spotify:playlist:7uqRLhkWOCmZiVUl4UENna"
+
+        spotify = ComandoSpotify.conectar()
+
+        spotify.start_playback(
+            context_uri=playlist_uri
+        )
+
+        print("🎵 Reproduciendo playlist de estudio")
