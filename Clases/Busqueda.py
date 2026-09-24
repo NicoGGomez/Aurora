@@ -1,70 +1,68 @@
-import pyttsx3
 import os
-import webbrowser
 
-from Clases.Busqueda import Busqueda
-
-class Helper:
-
-    try:
-        voz = pyttsx3.init()
-        voz.setProperty("rate", 175)
-        voz.setProperty("volume", 1.0)
-    except Exception:
-        voz = None
+class Busqueda:
 
     @staticmethod
-    def hablar(texto):
+    def busqueda_profunda(aplicacion):
 
-        if not texto:
-            return
+        posibles_rutas = [
 
-        print(f"Aurora: {texto}")
+            # Usuario
+            os.path.expandvars(
+                rf"%APPDATA%\{aplicacion}\{aplicacion}.exe"
+            ),
 
-        if Helper.voz is not None:
-            try:
-                Helper.voz.say(texto)
-                Helper.voz.runAndWait()
+            os.path.expandvars(
+                rf"%LOCALAPPDATA%\{aplicacion}\{aplicacion}.exe"
+            ),
 
-            except Exception as e:
-                print("Error en voz:", e)
+            # Microsoft Store
+            os.path.expandvars(
+                rf"%LOCALAPPDATA%\Microsoft\WindowsApps\{aplicacion}.exe"
+            ),
 
-    @staticmethod
-    def limpiar_busqueda(texto):
+            # Program Files
+            rf"C:\Program Files\{aplicacion}\{aplicacion}.exe",
+            rf"C:\Program Files (x86)\{aplicacion}\{aplicacion}.exe",
 
-        palabras_clave = [
-            "aurora",
-            "abrir",
-            "reproducir",
-            "poné",
-            "poner",
-            "buscá",
-            "buscar",
-            "youtube",
-            "en",
-            "internet"
+            # Variantes
+            rf"C:\Program Files\{aplicacion.capitalize()}\{aplicacion}.exe",
+            rf"C:\Program Files (x86)\{aplicacion.capitalize()}\{aplicacion}.exe",
+
+            # Ejecutable directo
+            rf"C:\Program Files\{aplicacion}.exe",
+            rf"C:\Program Files (x86)\{aplicacion}.exe",
+
+            # LocalAppData
+            os.path.expandvars(
+                rf"%LOCALAPPDATA%\Programs\{aplicacion}\{aplicacion}.exe"
+            ),
+
+            os.path.expandvars(
+                rf"%LOCALAPPDATA%\Programs\{aplicacion.capitalize()}\{aplicacion}.exe"
+            ),
+
+            # Escritorio
+            os.path.expandvars(
+                rf"%USERPROFILE%\Desktop\{aplicacion}.exe"
+            ),
+
+            # Descargas
+            os.path.expandvars(
+                rf"%USERPROFILE%\Downloads\{aplicacion}.exe"
+            ),
         ]
 
-        for palabra in palabras_clave:
-            texto = texto.replace(palabra, "")
+        for ruta in posibles_rutas:
 
-        return texto.strip()
+            if os.path.exists(ruta):
 
-    @staticmethod
-    def abrir_aplicacion(app):
+                print(f"Encontrado: {ruta}")
 
-        app = app.lower()
-        app = Helper.limpiar_busqueda(app)
+                os.startfile(ruta)
 
-        if "configuracion" in app:
+                return True
 
-            os.system("start ms-settings:")
-            return
+        print(f"No se encontró {aplicacion}")
 
-        print(f"Abriendo {app}")
-
-        if not Busqueda.busqueda_profunda(app):
-
-            webbrowser.open(
-                f"https://www.google.com/search?q={app}"
-            )
+        return False

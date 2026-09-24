@@ -1,18 +1,13 @@
 import pyttsx3
 import os
 import webbrowser
+import random
+import winsound
+import unicodedata
 
 from Clases.Busqueda import Busqueda
 
-
 class Helper:
-
-    try:
-        voz = pyttsx3.init()
-        voz.setProperty("rate", 175)
-        voz.setProperty("volume", 1.0)
-    except Exception:
-        voz = None
 
     @staticmethod
     def hablar(texto):
@@ -22,13 +17,21 @@ class Helper:
 
         print(f"Aurora: {texto}")
 
-        if Helper.voz is not None:
-            try:
-                Helper.voz.say(texto)
-                Helper.voz.runAndWait()
+        try:
 
-            except Exception as e:
-                print("Error en voz:", e)
+            voz = pyttsx3.init()
+
+            voz.setProperty("rate", 175)
+            voz.setProperty("volume", 1.0)
+
+            voz.say(texto)
+            voz.runAndWait()
+
+            voz.stop()
+
+        except Exception as e:
+
+            print("❌ Error en voz:", e)
 
     @staticmethod
     def limpiar_busqueda(texto):
@@ -55,17 +58,47 @@ class Helper:
     def abrir_aplicacion(app):
 
         app = app.lower()
+
         app = Helper.limpiar_busqueda(app)
 
         if "configuracion" in app:
 
             os.system("start ms-settings:")
-            return
 
-        print(f"Abriendo {app}")
+        else:
 
-        if not Busqueda.busqueda_profunda(app):
+            print(f"Abriendo {app}")
 
-            webbrowser.open(
-                f"https://www.google.com/search?q={app}"
-            )
+            if not Busqueda.busqueda_profunda(app):
+
+                webbrowser.open(
+                    f"https://www.google.com/search?q={app}"
+                )
+
+    @staticmethod
+    def respuesta_aleatoria(respuestas):
+        return random.choice(respuestas)
+
+    @staticmethod
+    def sonido_activacion():
+
+        winsound.PlaySound(
+            "Sonidos/activacion.wav",
+            winsound.SND_FILENAME
+        )
+
+    def normalizar_texto(texto):
+
+        texto = texto.lower().strip()
+
+        texto = unicodedata.normalize(
+            "NFD",
+            texto
+        )
+
+        texto = "".join(
+            c for c in texto
+            if unicodedata.category(c) != "Mn"
+        )
+
+        return texto

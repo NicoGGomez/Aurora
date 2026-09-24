@@ -5,6 +5,7 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL, CoInitialize
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
+from Clases.Helper import Helper
 
 class Sonido:
 
@@ -78,14 +79,22 @@ class Sonido:
 
         texto = texto.lower()
 
-        if "reproducir" in texto or "pausar" in texto:
+        if "pausar" in texto:
 
             pyautogui.press("playpause")
+            Helper.hablar("Pausando")
+
+        elif "reproducir" in texto:
+
+            pyautogui.press("playpause")
+            Helper.hablar("Reproduciendo")
 
         elif "siguiente" in texto:
 
             pyautogui.press("nexttrack")
+            Helper.hablar("Siguiente canción")
 
         elif "anterior" in texto:
 
             pyautogui.press("prevtrack")
+            Helper.hablar("Canción anterior")
