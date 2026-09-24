@@ -1,7 +1,11 @@
+from PySide6.QtWidgets import QApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QObject, Signal, Slot
+
 import speech_recognition as sr
 import threading
 import queue
-import time
+import sys
 
 from Clases.Sonido import Sonido
 from Clases.Escuchar import Escuchar
@@ -16,6 +20,20 @@ from Datos.Respuestas import (
     RESPUESTAS_NO_ENTENDI
 )
 
+
+class AuroraBridge(QObject):
+
+    estadoCambiado = Signal(str)
+    comandoCambiado = Signal(str)
+
+    @Slot(str)
+    def cambiarEstado(self, estado):
+        print(f"🖥️ Estado interfaz: {estado}")
+        self.estadoCambiado.emit(estado)
+
+    @Slot(str)
+    def mostrarComando(self, comando):
+        self.comandoCambiado.emit(comando)
 
 # =========================
 # CONFIGURACIÓN
@@ -104,11 +122,14 @@ COMANDOS = {
 # PROCESADOR
 # =========================
 
-def procesar_comando(texto):
+def procesar_comando(texto, bridge):
 
     texto = Helper.normalizar_texto(texto)
 
     print("🧠 Procesando:", texto)
+
+    bridge.cambiarEstado("procesando")
+    bridge.mostrarComando(texto)
 
     for clave, funcion in COMANDOS.items():
 
@@ -127,6 +148,8 @@ def procesar_comando(texto):
 
                 funcion(texto)
 
+            bridge.cambiarEstado("esperando")
+
             return
 
     print("❌ No entendí el comando")
@@ -135,17 +158,20 @@ def procesar_comando(texto):
                 RESPUESTAS_NO_ENTENDI
         )
     )
+    bridge.cambiarEstado("esperando")
 
 
 # =========================
 # LISTENER
 # =========================
 
-def listener():
+def listener(bridge):
 
     with microfono as source:
 
         while ejecutando.is_set():
+
+            bridge.cambiarEstado("escuchando")
 
             texto = Escuchar.escuchar(
                 r,
@@ -168,11 +194,15 @@ def listener():
 
                 print("🟢 Aurora activada")
 
+                bridge.cambiarEstado("hablando")
+
                 Helper.hablar(
                     Helper.respuesta_aleatoria(
                         RESPUESTAS_ACTIVACION
                     )
                 )
+
+                bridge.cambiarEstado("escuchando")
 
                 comando = Escuchar.escuchar(
                     r,
@@ -190,6 +220,8 @@ def listener():
                         comando
                     )
 
+                    bridge.mostrarComando(comando)
+
                     eventos.put(comando)
 
 
@@ -197,7 +229,7 @@ def listener():
 # PROCESSOR THREAD
 # =========================
 
-def processor():
+def processor(bridge):
 
     while ejecutando.is_set():
 
@@ -207,7 +239,7 @@ def processor():
                 timeout=0.5
             )
 
-            procesar_comando(texto)
+            procesar_comando(texto, bridge)
 
         except queue.Empty:
 
@@ -225,7 +257,55 @@ def processor():
 # MAIN
 # =========================
 
+# if __name__ == "__main__":
+
+#     Helper.hablar(
+#         Helper.respuesta_aleatoria(
+#             SALUDOS
+#         )
+#     )
+
+#     t1 = threading.Thread(
+#         target=listener,
+#         daemon=True
+#     )
+
+#     t2 = threading.Thread(
+#         target=processor,
+#         daemon=True
+#     )
+
+#     t1.start()
+#     t2.start()
+
+#     # Mantener el programa mientras Aurora esté activa
+#     while ejecutando.is_set():
+
+#         time.sleep(0.5)
+
+#     print("🔴 Aurora desconectada")
+
 if __name__ == "__main__":
+
+    app = QApplication(sys.argv)
+
+    engine = QQmlApplicationEngine()
+
+    bridge = AuroraBridge()
+
+    engine.rootContext().setContextProperty(
+        "aurora",
+        bridge
+    )
+
+    engine.load(
+        "Interfaz/Main.qml"
+    )
+
+    if not engine.rootObjects():
+        sys.exit(-1)
+
+    bridge.cambiarEstado("escuchando")
 
     Helper.hablar(
         Helper.respuesta_aleatoria(
@@ -235,20 +315,17 @@ if __name__ == "__main__":
 
     t1 = threading.Thread(
         target=listener,
+        args=(bridge,),
         daemon=True
     )
 
     t2 = threading.Thread(
         target=processor,
+        args=(bridge,),
         daemon=True
     )
 
     t1.start()
     t2.start()
 
-    # Mantener el programa mientras Aurora esté activa
-    while ejecutando.is_set():
-
-        time.sleep(0.5)
-
-    print("🔴 Aurora desconectada")
+    sys.exit(app.exec())
